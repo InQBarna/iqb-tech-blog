@@ -23,7 +23,7 @@ email: mobile@inqbarna.com
 description: >- # this means to ignore newlines until "baseurl:"
   The smart guys at inqbarna will try to post here their best thoughts and ideas to solve common problems on mobile development.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://inqbarna.github.io/iqb-tech-blog/" # the base hostname & protocol for your site, e.g. http://example.com
+url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: pruebaahora
 github_username:  InQBarna
 
