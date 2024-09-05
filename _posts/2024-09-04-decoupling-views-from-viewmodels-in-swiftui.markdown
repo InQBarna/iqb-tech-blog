@@ -5,6 +5,8 @@ date:   2024-09-04 21:31:41 +0200
 categories: swiftui
 ---
 
+![Image]({{ site.baseurl }}/assets/images/decouple-swiftui-views-viewmodels.webp)
+
 SwiftUI has revolutionized the way we build user interfaces for Apple platforms, offering a declarative syntax that’s both intuitive and powerful. However, as with any UI framework, it's crucial to maintain a clean architecture that separates the concerns of UI, business logic, and data management. This article will walk you through the best practices for decoupling your views from their view models in SwiftUI.
 
 ### **Why Decouple Views from ViewModels?**
