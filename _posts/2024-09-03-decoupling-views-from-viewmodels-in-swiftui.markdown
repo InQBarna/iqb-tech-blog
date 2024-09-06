@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Decoupling Views from ViewModels in SwiftUI"
-date:   2024-09-04 21:31:41 +0200
+date:   2024-09-03 21:31:41 +0200
 categories: swiftui
 ---
 
