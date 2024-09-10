@@ -24,10 +24,11 @@ description: >- # this means to ignore newlines until "baseurl:"
   The smart guys at inqbarna will try to post here their best thoughts and ideas to solve common problems on mobile development.
 baseurl: "/iqb-tech-blog/" # the subpath of your site, e.g. /blog
 url: "inqbarna.github.io" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: prueba_ahora
+twitter_username: pruebahora
 github_username:  InQBarna
 
 # Build settings
+# theme: beautiful-jekyll-theme
 theme: minima
 plugins:
   - jekyll-feed
