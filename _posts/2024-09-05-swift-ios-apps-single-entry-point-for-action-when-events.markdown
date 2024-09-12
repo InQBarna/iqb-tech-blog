@@ -6,9 +6,9 @@ categories: swift action functional
 ---
 
 Designing the business logic of a Swift iOS application around a single entry point can greatly simplify 
-how actions are managed. This approach helps structure code for better testing, logging, crash reporting,
+how actions are managed. This approach helps structure code for better testing, logging, reporting,
  and overall maintainability. By modeling side effects separately, you ensure a clean separation of concerns,
-  enhancing the predictability and scalability of your app’s architecture.
+ enhancing the predictability and scalability of your app’s architecture.
 
 ### **Why Use a Single Entry Point for Actions?**
 
@@ -18,16 +18,16 @@ how actions are managed. This approach helps structure code for better testing, 
 2. **Enhanced Testability**: A single entry point allows you to send mock events and verify state after 
 sending, leading to robust and isolated testing scenarios.
 
-3. **Logging and Analytics**: Centralizing events means you can easily log every event, enhancing your 
-analytics, crash reporting, and other global capabilities.
+3. **Centralized logging, analytics and more**: Centralizing events means you can easily log every event, enhancing your 
+analytics, crash reporting, and other global capabilities
 
 4. **Separation of Concerns**: Clearly separates business logic from side effects (e.g., network requests,
  database writes), which can be modeled as independent entities that trigger further actions.
 
 ### **Defining the Single Entry Point Using an Enum**
 
-Out approach to this solutios is to define a `When` enum that encapsulates all possible events in the app, or 
-in your current app scope. Each case of the enum can have associated values to pass necessary data, allowing 
+Our approach to this solution is to define a `When` enum that encapsulates all possible events in the app (or 
+in your current app scope). Each case of the enum can have associated values to pass necessary data, allowing 
 the business logic handler to react appropriately.
 
 #### **Step 1: Define the `When` Enum**
@@ -65,21 +65,31 @@ final class MyViewModel: ObservableObject {
 
 Middleware is the term used in some single entry point architectures to receive and/or
 transform and forward the `when` events. Some really interesting features are easy to implement
-on this approach, like
+with this approach, like
 
 - Logs and Reporting: local/remote logs, analytics and crash reporting are easy to implement.
 
-- Testing: testing becomes straightforward with event + state checking.
+- Testing: testing becomes straightforward with the basic steps: send an event, then check the
+correct state.
 
-- Reproducibility: recording the received events to reproduce an ongoing error can be done.
+- Reproducibility: recording the received events to reproduce an ongoing error can be implemented
+in the event handler.
 
-- And much more... TODO
+- And much more... some features are easier to implement in a global middleware than in separate
+methods.
 
 
-#### ***Example 3.1: Analytics and crash reporting middlewares**
+#### **Example Step 3.1: Analytics and crash reporting middleware**
+
+Integrating analytics and crash reporting in a mobile app is essential for improving user experience 
+and app quality. Crash reporting captures real-time errors, enabling detection, quick diagnosis and 
+fixes, which reduces app crashes and enhances stability. Sending analytics and crash reporting is
+easy on a centralized place, please see the following example:
+
+**Step 3.1.1**: Create the necessary code to capture a `when`event and send its associated parameters 
+to your analytics platform
 
 ```swift
-// Create the necessary code to transform a when into an struct thaht your analytics platform can handle
 struct AnalyticsProvider {
 
     struct AnalyticsEvent {
@@ -87,16 +97,19 @@ struct AnalyticsProvider {
         let parameters: [String: Any]
     }
 
-    static func buildAnalyticsEvent(when: AnalyticsWhen) throws -> AnalyticsEvent {
+    static func buildAnalyticsEvent(
+        when: AnalyticsWhen
+    ) throws -> AnalyticsEvent {
         let encoded = try JSONEncoder().encode(when)
-        guard let jsonDict = try JSONSerialization.jsonObject(with: encoded, options: []) as? [String: Any],
-                let first = jsonDict.keys.first else {
+        let json = try JSONSerialization.jsonObject(with: encoded, options: [])
+        guard let jsonDict = json as? [String: Any],
+              let enumCaseName = jsonDict.keys.first else {
             throw "When \(when) is unexpectedly encoded as json "
-                    + String(describing: String(data: encoded, encoding: .utf8))
+                + String(describing: String(data: encoded, encoding: .utf8))
         }
         return AnalyticsEvent(
-            name: first,
-            parameters: jsonDict[first] as? [String: Any] ?? [:]
+            name: enumCaseName,
+            parameters: jsonDict[enumCaseName] as? [String: Any] ?? [:]
         )
     }
 
@@ -117,8 +130,12 @@ struct AnalyticsProvider {
         }
     }
 }
+```
 
-// Modify your ViewModel Call a middleware on every event
+**Step 3.1.2**: Modify your ViewModel to adopt necessary `AnalyticsWhen` protocol and call the 
+analytics and crash report middleware in the `when` handler.
+
+```swift
 enum When: AnalyticsWhen {
     case userTypesNewEmail(userEmail: String)
     case userTapsChangeEmailButton
@@ -126,117 +143,140 @@ enum When: AnalyticsWhen {
 
 final class MyViewModel: ObservableObject {
     @Published var email: String = ""
+    @Published var savedEmail: String?
     func handle(_ when: When) {
-        AnalyticsProvider.analyticsAndCrashReportMiddleware(when: when) { when in
-            switch when {
+        // Every event will be sent to analytics
+        // Every thrown exception in business logic will be reported
+        AnalyticsProvider.analyticsAndCrashReportMiddleware(when: when) {
+            switch $0 {
             case .userTypesNewEmail(let newEmail):
                 self.email = newEmail
             case .userTapsChangeEmailButton:
-                print("Saving data: \(email)")
+                self.savedEmail = self.email
             }
         }
     }
 }
 ```
 
-##### **Example 3.2: Building a simple test framework**
+#### **Example Step 3.2: Building a simple test framework**
 
-Another example: adding a middleware to send crashes to your crash reporting plaftorm. This example shows
-you how middlewares should be declared as controlling next middleware call
+Adding testing in your app ensures quality, reliability, and clear understanding of
+business logic. Next example will define a small testing framework for an app enforcing: 
+clear readibility, integration with xctest logging framework and checking unwanted 
+retain cycles. More features can be added to the single entry point methods.
 
-```swift
-// TODO
-```
-
-### **Handling Effects Separately**
-
-Effects (or side effects), are external interactions like API requests, database updates, or system notifications.
-In this event/`when` based approach, these asynchronous effects should be modeled separately as 2 different synchronous 
-events to maintain clean business logic: One for effect triggering and another one to handle effect completion
-
-Instead of directly managing side effects inside the when handler, you should model their completion or failure as
-additional cases in the `When` enum. For instance:
+**Step 3.2.1**: Create a helper class to be used in your project's tests to enforce
+xctest integration and retain cycles detection.
 
 ```swift
-// Define additional when cases for handling effect completions or failures
-enum When {
-    case systemShowsUserProfileView
-    case networkFinishesLoadingProfile(Result<[String: String], Error>)
-    case userTypesNewEmail(userEmail: String)
-    case userTapsChangeEmailButton
-    case networkFinishesSavingProfile(Result<[String: String], Error>)
-}
-```
+final class TestRunner<T: SingleEntryPoint> {
 
-#### **Step 4: Triggering `When`s from Effects**
+    let sut: () -> T
+    private var steps: [(T) -> Void] = []
+    private init(_ builder: @escaping () -> T) {
+        self.sut = builder
+    }
 
-When an effect completes, trigger a new `when`. For example, after loading data from a network request, an `when` is triggered to handle the response.
+    static func GIVEN<TT: SingleEntryPoint>(
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        builder: @escaping () -> TT
+    ) -> TestRunner<TT> {
+        return TestRunner<TT>(builder)
+    }
 
-```swift
-// Build an effects handler to handle async tasks from outside
-enum Effect {
-    case performGetProfileNetworkRequest
-    case performSaveProfileNetworkRequest(email: String)
-}
-typealias EffectHandler = (Effect) async throws -> When
-static var fakeEffectHandler: EffectHandler = { effect in
-    // Simulate network delay and response
-    try await Task.sleep(nanoseconds: 1_000_000_000)
-    switch effect {
-    case .performGetProfileNetworkRequest:
-        return .networkFinishesLoadingProfile(
-            .success([
-                "name": "John Doe", "email": "john.doe@example.com"
-            ])
-        )
-    case .performSaveProfileNetworkRequest(let email):
-        // Simulate network delay and response
-        try await Task.sleep(nanoseconds: 1_000_000_000)
-        return .networkFinishesSavingProfile(
-            .success([
-                "name": "John Doe", "email": email
-            ])
-        )
+    func WHEN(
+        _ when: T.When,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) -> Self {
+        self.steps.append({ sut in
+            XCTContext.runActivity(named: "WHEN: \(try! buildTestLogEventName(when))") { _ in
+                sut.handle(when)
+            }
+        })
+        return self
+    }
+
+    func THEN<P: Equatable>(
+        file: StaticString = #filePath,
+        line: UInt = #line,
+        _ keyPath: KeyPath<T, P>,
+        is expectedValue: P
+    ) -> Self {
+        steps.append({ sut in
+            XCTContext.runActivity(named: "THEN: \(keyPath.lastPathComponent) is \(expectedValue)") { _ in
+                XCTAssertEqual(sut[keyPath: keyPath], expectedValue, file: file, line: line)
+            }
+        })
+        return self
+    }
+
+    func runTests() {
+        weak var releasableSut: T?
+        autoreleasepool {
+            let sut: T = XCTContext.runActivity(named: "GIVEN: \(T.self)") { _ in return self.sut() }
+            releasableSut = sut
+            for step in steps {
+                step(sut)
+            }
+        }
+        XCTAssert(releasableSut == nil)
     }
 }
+```
 
-// Implement the business logic
-final class MyViewModel: ObservableObject {
-    @Published var loading: Bool = false
+**Step 3.2.2**: Make small changes to the VM to adapt to the testing framework protocols
+
+```swift
+final class MyViewModel: ObservableObject, SingleEntryPoint {
+    
+    enum When: Codable {
+        case userTypesNewEmail(userEmail: String)
+        case userTapsChangeEmailButton
+    }
+
     @Published var email: String = ""
-    // Declared as var so it can be injected. Inject a throwing handler for testing, so test don't trigger effects
-    let effectHandler: EffectHandler = fakeEffectHandler 
+    @Published var savedEmail: String?
     func handle(_ when: When) {
         switch when {
-        case .systemShowsUserProfileView:
-            loading = true
-            Task { [weak self, effectHandler] in
-                let profileResponseWhen = try await effectHandler(.performGetProfileNetworkRequest)
-                self?.handle(profileResponseWhen)
-            }
-        case .networkFinishesLoadingProfile(let profile),
-                .networkFinishesSavingProfile(let profile):
-            switch profile {
-            case .success(let jsonProfile):
-                if let email = jsonProfile["email"] {
-                    self.email = email
-                }
-            case .failure:
-                break
-            }
-            self.loading = false
         case .userTypesNewEmail(let newEmail):
             self.email = newEmail
         case .userTapsChangeEmailButton:
-            loading = true
-            Task { [weak self, email, effectHandler] in
-                let profileResponseWhen = try await effectHandler(.performSaveProfileNetworkRequest(email: email))
-                self?.handle(profileResponseWhen)
-            }
+            self.savedEmail = self.email
         }
     }
 }
 ```
+
+**Step 3.2.3**: Use the providede framework baseline in your tests.
+
+```swift
+class SingleEntryPointTests: XCTestCase {
+    func testUserStory() {
+        TestRunner<MyViewModel>.GIVEN {
+            MyViewModel()
+        }
+        .WHEN(.userTypesNewEmail(userEmail: "john.dohe@example.com"))
+        .THEN(\.email, is: "john.dohe@example.com")
+        .WHEN(.userTapsChangeEmailButton)
+        .THEN(\.savedEmail, is: "john.dohe@example.com")
+        .runTests()
+    }
+}
+```
+
+In case you've never needed XCTest loggin integration for xcode or jenkins, please see the result:
+
+![Image]({{ site.baseurl }}/assets/images/swift-ios-apps-single-entry-poing-xctest-integration.png)
+
+### **Handling Effects Separately**
+
+Ouch... this article is packed with valuable insights, but to ensure a clear and focused discussion,
+we’ve decided to split it into two parts, Effects will be added to the second part. Stay tuned for it,
+where we’ll dive even deeper into the topic!
+
 
 ### **Benefits of This Approach**
 
@@ -244,18 +284,17 @@ final class MyViewModel: ObservableObject {
  making the code easier to follow, log, test and maintain.
 
 2. **Powerful Testing Capabilities**: Test your business logic in isolation by injecting mock `when`s and 
-asserting the expected outcomes without dealing with real side effects. Effects are controlledly completed by
-new modelled `when` completion events in the test code.
+asserting the expected outcomes.
 
-3. **Clean Separation of Business Logic and Side Effects**: By modeling side effects separately and handling their results 
-as `when`s, your business logic remains pure and testable.
+3. **Clean Declaration of Acceptance Criterai and scelarios**: By modeling `state` and `when` separatedly,
+expectation of the source code is clear to everyone involved.
    
 ### **Conclusion**
 
-Implementing a single entry point for `when` handling in Swift iOS applications provides a powerful way to manage business
-logic. It centralizes control, enhances testability, and separates the complexities of side effects, making your code cleaner,
-more maintainable, and easier to debug. 
+Implementing a single entry point for `when` handling in Swift iOS applications provides a powerful way to 
+manage business logic. It centralizes control, enhances testability, making your code cleaner, more maintainable,
+and easier to debug. 
 
-This approach not only simplifies how inputs and outputs are handled but also lays the groundwork for advanced features 
-like automated testing, comprehensive logging, and structured error reporting. By embracing this architecture, you set 
- strong foundation for building robust, scalable, and reliable iOS applications.
+This approach not only simplifies how inputs and outputs are handled but also lays the groundwork for advanced 
+features  like automated testing, comprehensive logging, and structured error reporting. By embracing this 
+architecture, you set strong foundation for building robust, scalable, and reliable iOS applications.

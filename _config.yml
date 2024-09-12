@@ -21,7 +21,7 @@
 title: InQBarna tech blog
 email: mobile@inqbarna.com
 description: >- # this means to ignore newlines until "baseurl:"
-  The smart guys at inqbarna will try to post here their best thoughts and ideas to solve common problems on mobile development.
+  Brought to you by the developers at Inqbarna, who’ve carved out time from their busy schedules to share their expertise.
 baseurl: "/iqb-tech-blog/" # the subpath of your site, e.g. /blog
 url: "inqbarna.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: pruebahora
