@@ -18,7 +18,7 @@ group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.12"
 end
 
-# gem "beautiful-jekyll-theme", "6.0.1"
+# gem "jekyll-remote-theme"
 
 # Windows and JRuby does not include zoneinfo files, so bundle the tzinfo-data gem
 # and associated library.

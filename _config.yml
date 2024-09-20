@@ -28,10 +28,16 @@ twitter_username: pruebahora
 github_username:  InQBarna
 
 # Build settings
-# theme: beautiful-jekyll-theme
 theme: minima
+# remote_theme: pages-themes/minimal@v0.2.0
+# remote_theme: daattali/beautiful-jekyll@6.0.1
 plugins:
   - jekyll-feed
+#  - jekyll-remote-theme # add this line to the plugins list if you already have one
+
+#minima:
+#  include_css:
+#     - /assets/css/custom.scss
 
 # Exclude from processing.
 # The following items will not be processed, by default.
