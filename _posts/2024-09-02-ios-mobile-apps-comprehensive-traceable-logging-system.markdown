@@ -201,7 +201,7 @@ happening on real world scenarios. Build whatever you want on top of the modular
 
 As usual, someone did this before us. Apple for example. Take a look at this project for inspiration:
 
-https://github.com/apple/swift-log
+[swift-log](https://github.com/apple/swift-log)
 
 ## **Conclusion**
 
