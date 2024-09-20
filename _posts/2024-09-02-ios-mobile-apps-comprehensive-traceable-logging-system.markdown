@@ -5,6 +5,8 @@ date:   2024-09-02 21:31:41 +0200
 categories: swiftui
 ---
 
+![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-title.png)
+
 In the development of iOS mobile apps, one of the key aspects of ensuring robustness, maintainability, and scalability is the implementation of a well-thought-out logging system. A comprehensive logging solution not only aids in debugging but also enables traceability and reporting. With a modular design, developers can extend the logging system to integrate with third-party services, record user actions, and gather insights into app behavior. This article will guide you through building a logging system in Swift that achieves these goals.
 
 ### **Why You Need a Comprehensive Logging System**
@@ -199,9 +201,22 @@ happening on real world scenarios. Build whatever you want on top of the modular
 
 ### **Use an existing solution**
 
-As usual, someone did this before us. Apple for example. Take a look at this project for inspiration:
+As usual, someone did this before us. Apple for example. Take a look at this project for inspiration: [swift-log](https://github.com/apple/swift-log)
 
-[swift-log](https://github.com/apple/swift-log)
+### **Enforce usage**
+
+Print nor NSLog should not be used anymore. Using [swiftlint](https://github.com/realm/SwiftLint) you can 
+enforce all developers to no longer use the `print()` method.
+
+Add this to your `swiftlint.yml` file:
+
+```yml
+  log_method:
+    name: "Method not allowed."
+    regex: '(NSLog\(|print\()'
+    message: "Please use Logger.shared.log()"
+    severity: warning
+```
 
 ## **Conclusion**
 
