@@ -274,8 +274,7 @@ In case you've never needed XCTest loggin integration for xcode or jenkins, plea
 ### **Handling Effects Separately**
 
 Ouch... this article is packed with valuable insights, but to ensure a clear and focused discussion,
-we’ve decided to split it into two parts, Effects will be added to the second part. Stay tuned for it,
-where we’ll dive even deeper into the topic!
+we’ve decided to split it into two parts, Effects will be added to the second part [Swift iOS App Single Entry Point for Action/When Events - Effects]({{ site.baseurl }}/swift/action/functional/2024/09/06/swift-ios-apps-single-entry-point-for-action-when-events-effects.html)
 
 
 ### **Benefits of This Approach**
