@@ -147,6 +147,6 @@ struct CounterView: View {
 
 The balance between simplicity and structure must be carefully considered and adapted to your project's size and expected scalability.
 
-### **Conclusion**
+## **Conclusion**
 
 Decoupling views from view models in SwiftUI is a key practice for building scalable and maintainable apps. By relying on input and output value types, you can create UI components that are flexible, previewable, and easy to work with. Remember, the goal is to keep your views as simple as possible, letting the view model handle the heavy lifting.

@@ -220,7 +220,7 @@ new modelled `when` completion events in the test code.
 3. **Clean Separation of Business Logic and Side `Effect`s**: By modeling side `Effect`s separately and handling their results 
 as `when`s, your business logic remains pure and testable.
    
-### **Conclusion**
+## **Conclusion**
 
 Implementing a single entry point for `when` handling in Swift iOS applications provides a powerful way to manage business
 logic. It centralizes control, enhances testability, and separates the complexities of side effects, making your code cleaner,

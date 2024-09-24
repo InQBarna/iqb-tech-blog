@@ -185,6 +185,6 @@ extension DependenciesAndBoundariesTests {
 
 5. **Leverage Dependency Injection Frameworks**: Consider using dependency injection frameworks like Resolver or Swinject to manage the injection and lifecycle of dependencies in your app.
 
-### **Conclusion**
+## **Conclusion**
 
 By properly injecting external dependencies and defining clear boundaries between your business logic and third-party libraries, you can create a more maintainable, testable, and flexible codebase. Decoupling these dependencies allows you to focus on building robust business logic while safely leveraging external functionality.
