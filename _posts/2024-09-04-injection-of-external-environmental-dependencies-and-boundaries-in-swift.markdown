@@ -32,6 +32,7 @@ These dependencies are essential but can be unpredictable, especially during tes
 A critical aspect of managing dependencies is identifying the boundaries between your business logic and external dependencies.
 
 - **Business Logic**: The core algorithms, rules, and data manipulations specific to your application. This is the code you write and control.
+
 - **External Dependencies**: Code and libraries that interact with the outside world, such as date formatting, networking, or accessing hardware features. These are often pre-tested and maintained by their providers.
 
 **Boundary Principle**: Set up boundaries at the interface where your business logic meets external dependencies. The goal is to inject dependencies rather than letting them bleed into your business logic.
@@ -182,13 +183,9 @@ extension DependenciesAndBoundariesTests {
 ### **Best Practices for Setting Up Dependency Injection Boundaries**
 
 1. **Use Providers to Define Boundaries**: Providers serve as boundaries that separate your business logic from external dependencies, allowing you to inject different implementations based on the context.
-   
 2. **Inject Dependencies at the Highest Level**: Dependencies should be injected at the topmost level where they are used, such as during the initialization of a view model or a service class.
-
 3. **Minimize Direct Access**: Avoid directly accessing system or third-party APIs within your business logic. Instead, encapsulate them behind providers or service layers.
-
 4. **Design for Testability**: Always design your classes and services with testing in mind. Ask yourself: Can this code be tested in isolation without relying on actual system behavior?
-
 5. **Leverage Dependency Injection Frameworks**: Consider using dependency injection frameworks like Resolver or Swinject to manage the injection and lifecycle of dependencies in your app.
 
 ---

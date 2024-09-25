@@ -10,11 +10,8 @@ This is the second part of the article [Swift iOS App Single Entry Point for Act
 ## **Why Use a Single Entry Point for Actions?**
 
 1. **Centralized Action/`When` Handling**: By funneling all app events through a single entry point, you gain a centralized place to manage business logic, making the app easier to understand and extend.
-
 2. **Enhanced Testability**: A single entry point allows you to send mock events and verify the state afterward, enabling robust and isolated testing scenarios.
-
 3. **Centralized Logging, Analytics, and More**: Centralizing events makes it easier to log every event, enhancing your app’s analytics, crash reporting, and other global capabilities.
-
 4. **Separation of Concerns**: This approach clearly separates business logic from side effects (e.g., network requests, database writes), which can be modeled as independent entities that trigger further actions.
 
 ---
@@ -155,7 +152,6 @@ final class MyViewModel: ObservableObject {
 #### **Key Observations:**
 
 1. **Triggering**: The effect is triggered asynchronously, and the completion is fed back into the handler method. This allows us to work consistently with a single entry point for business logic, while focusing testing efforts on the `When`s without needing to directly test the effects.
-
 2. **Completion and State Check**: The state is checked upon effect completion. While this introduces some overhead, it ensures developers understand that **anything** can happen between the triggering and completion of an effect. If the completion occurs in an unexpected state, it’s treated as an exception.
 
 ### **Step 5: Write Some Tests**
@@ -193,21 +189,15 @@ func testUserStoryWithEffects() {
 ### **Benefits of This Approach (recap from Part 1)**
 
 1. **Structured Flow of `When`s**: The single entry point structure ensures a well-defined flow of `When` events, making the code easier to follow, log, test, and maintain.
-
 2. **Powerful Testing Capabilities**: Test your business logic in isolation by injecting mock `When`s and asserting the expected outcomes without real side effects. `Effect` completions are modeled as new `When` events that can be directly tested.
-
 3. **Clean Separation of Business Logic and Side `Effect`s**: By modeling side effects separately and handling their results as `When` events, your business logic remains pure and testable.
-
 4. **`Effect`s timeline awareness**: Responding to a effect completion in a completely new context (the handler method) enforces an awareness of asynchronicity on the developer, and checking for actual state feels necessary (which has allways been)
-
 5. **Clean Declaration of Acceptance Criteria**: By modeling `state` and `when` separately, the expectations from the code are clear for everyone involved.
 
 ### **CONs of This Approach**
 
 1. **Effects completion context handling complexity**: Inline concurrent code like async/await makes context handling simpler by keeping everything in one block, reducing the need for manual state management or tracking across separate events.
-
 2. **Scaling complexity**: While a single entry point can leverage many features, it needs an important review when the app grows. Though scaling this approach can be done, the scaling architecture needs to be well designed and planned.
-
 3. **Risk of Over-centralization**: If too much logic is placed in the single entry point, it can turn into a "God object," complicating maintenance.
 
 ---

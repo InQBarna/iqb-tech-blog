@@ -22,9 +22,7 @@ Decoupling views from view models is essential for several reasons:
 ### **Principles of Decoupling in SwiftUI**
 
 1. **Views are Stateless:** SwiftUI views should be as stateless as possible. They should rely on view models to provide the data and handle the logic.
-   
 2. **Functional Programming:** Define value types as inputs and outputs of your view, and map these value types to your view model.
-
 3. **Use Bindings Sparingly:** Use SwiftUI bindings carefully, as they can sometimes create unintended tight coupling between views and view models. Excessive use of bindings might lead to too many dependencies between the UI and its underlying logic, defeating the purpose of decoupling.
 
 ### **Example of a Coupled SwiftUI View and ViewModel**
@@ -69,11 +67,8 @@ struct CoupledCounterView: View {
 ### **Problems with This Approach**
 
 1. **Tight Coupling**: The `CoupledCounterView` directly creates and manages the `CoupledCounterViewModel`, making it difficult to reuse the view.
-  
 2. **Hard to create Previews**: Because the view and view model are tightly coupled, you cannot easily create Previews with different ViewModel scenarios.
-
 3. **Difficult to Extend or Change**: Changing the view model or view logic will likely require changes in both components, leading to a fragile codebase that breaks easily with modifications.
-
 4. **Reduced Reusability**: The view is stuck with a specific implementation of the view model, making it hard to reuse the view with different data sources or logic without substantial code changes.
 
 ---
@@ -145,7 +140,6 @@ struct CounterView: View {
 - **Loose Coupling:** The view only knows about the input and output value types, not the concrete implementation, which makes it easy to swap out the view model if needed.
 - **Easier Preview:** You can build many previews with different states or scenarios without needing to create dummy view models.
 - **Reusable Views:** The view can be reused with different view models or parent views, allowing for easy adaptation to new use cases by simply mapping inputs and outputs.
-
 ### **Cons of Decoupling Views from ViewModels**
 
 - **Increased Boilerplate**: Defining separate value types for input/output protocols can make the code more verbose and lead to fragmented code base, especially in smaller projects.

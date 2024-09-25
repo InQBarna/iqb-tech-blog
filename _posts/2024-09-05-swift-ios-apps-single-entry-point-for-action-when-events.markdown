@@ -10,11 +10,8 @@ Designing the business logic of a Swift iOS application around a single entry po
 ## **Why Use a Single Entry Point for Actions?**
 
 1. **Centralized Action Handling**: By funneling all app events through a single entry point, you gain a centralized place to manage business logic, making the app easier to understand and extend.
-
 2. **Enhanced Testability**: A single entry point allows you to send mock events and verify the resulting state, leading to robust and isolated testing scenarios.
-
 3. **Centralized Logging and Analytics**: Centralizing event handling means you can easily log every event, enhancing your analytics, crash reporting, and other global capabilities.
-
 4. **Separation of Concerns**: This approach clearly separates business logic from side effects (e.g., network requests, database writes), which can be modeled as independent entities that trigger further actions.
 
 ---
@@ -249,15 +246,12 @@ Ouch... this article is packed with valuable insights, but to ensure a clear and
 ### **Benefits of This Approach**
 
 1. **Structured Flow of `When`s**: The single entry point structure ensures a well-defined flow of `when`s, making the code easier to follow, log, test, and maintain.
-
 2. **Powerful Testing Capabilities**: Test your business logic in isolation by injecting mock `when`s and asserting the expected outcomes.
-
 3. **Clean Declaration of Acceptance Criteria**: By modeling `state` and `when` separately, the expectations from the code are clear for everyone involved.
 
 ### **Cons of Using a Single Entry Point for Actions**
 
 1. **Scaling complexity**: While a single entry point can leverage many features, it needs an important review when the app grows. Though scaling this approach can be done, the scaling architecture needs to be well designed and planned.
-
 2. **Risk of Over-centralization**: If too much logic is placed in the single entry point, it can turn into a "God object," complicating maintenance.
 
 ---

@@ -185,6 +185,10 @@ See the result in the debugger:
 
 ![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-structured.png)
 
+Some of the features provided by Apple's system are visible in the debugger logs: timestamps, filters, categories, etc...
+
+ ![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-structured-expanded.png)
+
 ---
 
 ### **Other Log Handlers**
