@@ -7,26 +7,26 @@ categories: swiftui
 
 ![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-title.png)
 
-In the development of iOS mobile apps, one of the key aspects of ensuring robustness, maintainability, and scalability is the implementation of a well-thought-out logging system. A comprehensive logging solution not only aids in debugging but also enables traceability and reporting. With a modular design, developers can extend the logging system to integrate with third-party services, record user actions, and gather insights into app behavior. This article will guide you through building a logging system in Swift that achieves these goals.
+In the development of iOS mobile apps, one of the key aspects of ensuring robustness, maintainability, and scalability is implementing a well-thought-out logging system. A comprehensive logging solution not only aids in debugging but also enables traceability and reporting. With a modular design, developers can extend the logging system to integrate with third-party services, record user actions, and gather insights into app behavior. This article will guide you through building a logging system in Swift that achieves these goals.
 
 ### **Why You Need a Comprehensive Logging System**
 
-While simple print statements (`print()`) are helpful during early stages of development, they don’t scale well for larger apps. Comprehensive logging offers several key benefits:
+While simple print statements (`print()`) are helpful during early stages of development, they don’t scale well for larger apps. A comprehensive logging system offers several key benefits:
 
-- **Debugging**: Log messages help identify issues in development, testing, and even production.
-- **Traceability**: By logging critical events, you can trace the app's behavior, helping to debug complex issues.
-- **Reporting**: Logs can be used to track key metrics such as user activity, performance bottlenecks, and errors.
-- **Analytics**: A well-designed logging system can generate insights that help improve user experience and performance.
+- **Debugging**: Log messages help identify issues in development, testing, and production environments.
+- **Traceability**: Logging critical events enables tracing app behavior, which helps in debugging complex issues.
+- **Reporting**: Logs can track key metrics such as user activity, performance bottlenecks, and errors.
+- **Analytics**: A well-designed logging system can generate insights that improve user experience and performance.
+
+---
 
 ## **Building a Modular Logging System in Swift**
 
-A modular logging system provides flexibility. It allows different modules to plug into the core logger 
-for different functionalities like network reporting, analytics, or error handling. Let’s start by 
-building a basic logger and then scale it into a modular system.
+A modular logging system provides flexibility, allowing different modules to plug into the core logger for functionalities like network reporting, analytics, or error handling. Let’s start by building a basic logger and then expand it into a modular system.
 
 ### **Step 1: The Core Logger**
 
-Start by creating a `Logger` class that acts as the foundation of your logging system. The logger will handle basic logging operations and provide methods to log messages with different levels (info, debug, error, etc.).
+Start by creating a `Logger` class that acts as the foundation of your logging system. The logger will handle basic logging operations and provide methods to log messages at different levels (info, debug, error, etc.).
 
 ```swift
 enum LogLevel {
@@ -39,6 +39,7 @@ enum LogLevel {
 class Logger {
     static let shared = Logger()
     private init() {}
+    
     func log(_ message: String, level: LogLevel = .info, file: String = #file, line: Int = #line) {
         let fileName = (file as NSString).lastPathComponent
         print("\(Datºe())\t\(level.emoji)[\(level)]\t\(fileName):\(line)\t\(message)")
@@ -46,9 +47,9 @@ class Logger {
 }
 ```
 
-This simple `Logger` class has:
-- **Log Levels**: `info`, `debug`, `warning`, and `error` to classify the severity of logs.
-- **File and Line Information**: Captures the file name and line number for easier traceability.
+This simple `Logger` class features:
+- **Log Levels**: `info`, `debug`, `warning`, and `error` to classify log severity.
+- **File and Line Information**: Captures file name and line number for easier traceability.
 
 **Usage Example:**
 
@@ -58,18 +59,15 @@ Logger.shared.log("Fetching user data", level: .debug)
 Logger.shared.log("Invalid response received", level: .error)
 ```
 
-See the result in the debugger
+You'll see output in the debugger similar to:
 
 ![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-print.png)
 
-
 ### **Step 2: Modular Logging**
 
-A modular logging system allows you to extend logging to different subsystems, such as 
-network logging, error reporting, or even analytics reporting. This can be achieved by 
-using injection.
+A modular logging system allows you to extend logging to different subsystems, such as network logging, error reporting, or analytics. This can be achieved by injecting log handlers.
 
-First, define a `LogHandler` injectable struct that each subsystem can implement.
+First, define a `LogHandler` struct that each subsystem can implement.
 
 ```swift
 struct LogMessage {
@@ -84,12 +82,13 @@ struct LogHandler {
 }
 ```
 
-Then, modify the `Logger` class to allow multiple log handlers:
+Now modify the `Logger` class to allow multiple log handlers:
 
 ```swift
 class Logger {
     static let shared = Logger()
     private var handlers: [LogHandler] = []
+    
     func addHandler(_ handler: LogHandler) {
         handlers.append(handler)
     }
@@ -113,16 +112,15 @@ class Logger {
 }
 ```
 
-Now, the logger can handle multiple logging destinations by adding handlers dynamically.
+Now, the logger can handle multiple destinations by adding handlers dynamically.
 
 ### **Step 3: Adding Custom Log Handlers**
 
-You can extend the logger by adding custom log handlers, such as one for network logging or analytics.
+You can extend the logger by adding custom log handlers, such as for network logging or analytics.
 
 #### **Basic `print` Log Handler**
 
-Our first log handler prints to a gdb logs to get the same result as in step 1.
- Here's an example implementation:
+This log handler prints log messages to the console, just like in Step 1:
 
 ```swift
 static var dummyPrintLogger = LogHandler { logMessage in
@@ -143,8 +141,7 @@ logger.log("Invalid response received", level: .error)
 
 #### **OS Log Handler**
 
-Apple provides a log tool, you may be already using it. In fact, we all should use it,
-it provides many features, specially if abstraction is already in place.
+Apple provides `os_log`, a powerful logging tool built into iOS and macOS. It offers structured logging with support for filtering and performance insights.
 
 ```swift
 import OSLog
@@ -190,48 +187,41 @@ See the result in the debugger:
 
 Some of the features provided by Apple's system are visible in the debugger logs: timestamps, filters, categories, etc...
 
-![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-structured-expanded.png)
+ ![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-structured-expanded.png)
 
+---
 
 ### **Other Log Handlers**
 
-You can also log events for analytics purposes, connect to a network logging system,,,, 
-Errors could be posted to error logging system for example to track any unexpected situation
-happening on real world scenarios. Build whatever you want on top of the modular logging.
+You can also log events for analytics, or send errors to a remote logging system for real-time error tracking. The modular system is flexible enough to support various use cases.
 
-### **Use an existing solution**
+### **Use an Existing Solution**
 
-As usual, someone did this before us. Apple for example. Take a look at this project for inspiration: [swift-log](https://github.com/apple/swift-log)
+Apple has already created a logging solution, `swift-log`. Consider using it as a reference or inspiration for more advanced logging systems: [swift-log](https://github.com/apple/swift-log).
 
-### **Enforce usage**
+### **Enforce Logger Usage**
 
-Print nor NSLog should not be used anymore. Using [swiftlint](https://github.com/realm/SwiftLint) you can 
-enforce all developers to no longer use the `print()` method.
-
-Add this to your `swiftlint.yml` file:
+To ensure consistency and prevent the use of `print()` or `NSLog`, you can enforce the use of your `Logger` by adding rules to [SwiftLint](https://github.com/realm/SwiftLint). Here’s a rule to disallow `print()`:
 
 ```yml
-  log_method:
-    name: "Method not allowed."
-    regex: '(NSLog\(|print\()'
-    message: "Please use Logger.shared.log()"
-    severity: warning
+log_method:
+  name: "Method not allowed."
+  regex: '(NSLog\\(|print\\()'
+  message: "Please use Logger.shared.log()"
+  severity: warning
 ```
+
+---
 
 ## **Conclusion**
 
-Building a modular logging system in Swift allows for flexibility and scalability in your iOS apps.
- By creating a system that supports multiple log handlers, you enable logging for different purposes 
- such as debugging, traceability, network reporting, and (maybe) analytics tracking. As your app grows,
- so too can your logging system, adapting to new modules and external services without needing to 
- rework the core system.
+Building a modular logging system in Swift allows flexibility and scalability in your iOS apps. A system that supports multiple log handlers enables logging for different purposes such as debugging, traceability, network reporting, and analytics. As your app grows, your logging system can easily be extended, making it easier to debug, monitor, and improve your app over time.
 
 In summary, a well-architected logging system:
 - Improves debugging capabilities.
 - Increases traceability of issues.
 - Facilitates reporting.
 
-With this foundation, your iOS app will be much easier to debug, monitor, and improve over time,
- leading to a more maintainable and reliable codebase.
+With this foundation, your iOS app will be more maintainable and reliable.
 
 **Stay tuned for more Swift tips and tricks!**

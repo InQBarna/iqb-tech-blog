@@ -1,39 +1,28 @@
 ---
 layout: post
-title:  "Swift iOS App Single Entry Point for Action/When Events"
+title:  "Swift iOS App Single Entry Point for Action/When Events (Part 1)"
 date:   2024-09-05 21:31:41 +0200
 categories: swift action functional
 ---
 
-Designing the business logic of a Swift iOS application around a single entry point can greatly simplify 
-how actions are managed. This approach helps structure code for better testing, logging, reporting,
- and overall maintainability. By modeling side effects separately, you ensure a clean separation of concerns,
- enhancing the predictability and scalability of your app’s architecture.
+Designing the business logic of a Swift iOS application around a single entry point can greatly simplify how actions are managed. This approach helps structure code for better testing, logging, reporting, and overall maintainability. By modeling side effects separately, you ensure a clean separation of concerns, enhancing the predictability and scalability of your app’s architecture.
 
-### **Why Use a Single Entry Point for Actions?**
+## **Why Use a Single Entry Point for Actions?**
 
-1. **Centralized Action/When Handling**: By funneling all app events through a single entry point,
- you gain a centralized place to manage business logic, making the app easier to understand and extend.
-  
-2. **Enhanced Testability**: A single entry point allows you to send mock events and verify state after 
-sending, leading to robust and isolated testing scenarios.
+1. **Centralized Action Handling**: By funneling all app events through a single entry point, you gain a centralized place to manage business logic, making the app easier to understand and extend.
+2. **Enhanced Testability**: A single entry point allows you to send mock events and verify the resulting state, leading to robust and isolated testing scenarios.
+3. **Centralized Logging and Analytics**: Centralizing event handling means you can easily log every event, enhancing your analytics, crash reporting, and other global capabilities.
+4. **Separation of Concerns**: This approach clearly separates business logic from side effects (e.g., network requests, database writes), which can be modeled as independent entities that trigger further actions.
 
-3. **Centralized logging, analytics and more**: Centralizing events means you can easily log every event, enhancing your 
-analytics, crash reporting, and other global capabilities
+---
 
-4. **Separation of Concerns**: Clearly separates business logic from side effects (e.g., network requests,
- database writes), which can be modeled as independent entities that trigger further actions.
+## **Defining the Single Entry Point Using an Enum**
 
-### **Defining the Single Entry Point Using an Enum**
+One way to implement this architecture is by defining a `When` enum that encapsulates all possible events in the app (or in your current app scope). Each case of the enum can have associated values to pass necessary data, allowing the business logic handler to react accordingly.
 
-Our approach to this solution is to define a `When` enum that encapsulates all possible events in the app (or 
-in your current app scope). Each case of the enum can have associated values to pass necessary data, allowing 
-the business logic handler to react appropriately.
+### **Step 1: Define the `When` Enum**
 
-#### **Step 1: Define the `When` Enum**
-
-Create an `When` enum that represents all possible events in your application/scope. Each case 
-can have associated values that represent the data required for that `when`.
+Create a `When` enum that represents all possible events in your application or scope. Each case can have associated values representing the data required for that specific `when`.
 
 ```swift
 // Define the When enum with associated values
@@ -43,13 +32,14 @@ enum When: Codable {
 }
 ```
 
-#### **Step 2: Define a Single Entry Point to Handle Whens**
+### **Step 2: Define a Single Entry Point to Handle Whens**
 
 Create a method (often in a ViewModel, Controller, or Service) that serves as the single entry point to handle these `when`s.
 
 ```swift
 final class MyViewModel: ObservableObject {
     @Published var email: String = ""
+    
     func handle(_ when: When) {
         switch when {
         case .userTypesNewEmail(let newEmail):
@@ -61,33 +51,15 @@ final class MyViewModel: ObservableObject {
 }
 ```
 
-#### **Step 3: Adding middlewares**
+### **Step 3: Adding Middleware**
 
-Middleware is the term used in some single entry point architectures to receive and/or
-transform and forward the `when` events. Some really interesting features are easy to implement
-with this approach, like
+Middleware can be used in some single entry point architectures to receive, transform, and forward `when` events. This makes it easy to implement features such as logging, reporting, and testing at a centralized point.
 
-- Logs and Reporting: local/remote logs, analytics and crash reporting are easy to implement.
+#### **Example Step 3.1: Analytics and Crash Reporting Middleware**
 
-- Testing: testing becomes straightforward with the basic steps: send an event, then check the
-correct state.
+Centralizing analytics and crash reporting helps improve app quality and user experience. By capturing real-time errors and events, you can quickly diagnose and fix crashes.
 
-- Reproducibility: recording the received events to reproduce an ongoing error can be implemented
-in the event handler.
-
-- And much more... some features are easier to implement in a global middleware than in separate
-methods.
-
-
-#### **Example Step 3.1: Analytics and crash reporting middleware**
-
-Integrating analytics and crash reporting in a mobile app is essential for improving user experience 
-and app quality. Crash reporting captures real-time errors, enabling detection, quick diagnosis and 
-fixes, which reduces app crashes and enhances stability. Sending analytics and crash reporting is
-easy on a centralized place, please see the following example:
-
-**Step 3.1.1**: Create the necessary code to capture a `when`event and send its associated parameters 
-to your analytics platform
+**Step 3.1.1**: Create the necessary code to capture a `when` event and send its associated parameters to your analytics platform.
 
 ```swift
 struct AnalyticsProvider {
@@ -104,8 +76,8 @@ struct AnalyticsProvider {
         let json = try JSONSerialization.jsonObject(with: encoded, options: [])
         guard let jsonDict = json as? [String: Any],
               let enumCaseName = jsonDict.keys.first else {
-            throw "When \(when) is unexpectedly encoded as json "
-                + String(describing: String(data: encoded, encoding: .utf8))
+            throw "When \(when) is unexpectedly encoded as json " +
+                String(describing: String(data: encoded, encoding: .utf8))
         }
         return AnalyticsEvent(
             name: enumCaseName,
@@ -119,12 +91,12 @@ struct AnalyticsProvider {
     ) rethrows {
         do {
             if let evt = try? buildAnalyticsEvent(when: when) {
-                // Send to your Platform
+                // Send to your analytics platform
                 // Analytics.sendEvent(evt.name, evt.parameters)
             }
             return try next(when)
         } catch {
-            // Send to your crash reporting Platform
+            // Send to your crash reporting platform
             // CrashReporting.send(error)
             throw error
         }
@@ -132,8 +104,7 @@ struct AnalyticsProvider {
 }
 ```
 
-**Step 3.1.2**: Modify your ViewModel to adopt necessary `AnalyticsWhen` protocol and call the 
-analytics and crash report middleware in the `when` handler.
+**Step 3.1.2**: Modify your ViewModel to adopt the `AnalyticsWhen` protocol and call the middleware in the `when` handler.
 
 ```swift
 enum When: AnalyticsWhen {
@@ -144,9 +115,10 @@ enum When: AnalyticsWhen {
 final class MyViewModel: ObservableObject {
     @Published var email: String = ""
     @Published var savedEmail: String?
+    
     func handle(_ when: When) {
         // Every event will be sent to analytics
-        // Every thrown exception in business logic will be reported
+        // Any thrown exception in business logic will be reported
         AnalyticsProvider.analyticsAndCrashReportMiddleware(when: when) {
             switch $0 {
             case .userTypesNewEmail(let newEmail):
@@ -159,21 +131,18 @@ final class MyViewModel: ObservableObject {
 }
 ```
 
-#### **Example Step 3.2: Building a simple test framework**
+#### **Example Step 3.2: Building a Simple Test Framework**
 
-Adding testing in your app ensures quality, reliability, and clear understanding of
-business logic. Next example will define a small testing framework for an app enforcing: 
-clear readibility, integration with xctest logging framework and checking unwanted 
-retain cycles. More features can be added to the single entry point methods.
+Testing is critical for ensuring quality and reliability. Here's an example of a small test framework integrated with XCTest for enhanced test logging and detection of unwanted retain cycles.
 
-**Step 3.2.1**: Create a helper class to be used in your project's tests to enforce
-xctest integration and retain cycles detection.
+**Step 3.2.1**: Create a helper class to integrate testing with XCTest and detect retain cycles.
 
 ```swift
 final class TestRunner<T: SingleEntryPoint> {
 
     let sut: () -> T
     private var steps: [(T) -> Void] = []
+    
     private init(_ builder: @escaping () -> T) {
         self.sut = builder
     }
@@ -227,7 +196,7 @@ final class TestRunner<T: SingleEntryPoint> {
 }
 ```
 
-**Step 3.2.2**: Make small changes to the VM to adapt to the testing framework protocols
+**Step 3.2.2**: Modify your ViewModel to adapt to the testing framework.
 
 ```swift
 final class MyViewModel: ObservableObject, SingleEntryPoint {
@@ -239,6 +208,7 @@ final class MyViewModel: ObservableObject, SingleEntryPoint {
 
     @Published var email: String = ""
     @Published var savedEmail: String?
+    
     func handle(_ when: When) {
         switch when {
         case .userTypesNewEmail(let newEmail):
@@ -250,7 +220,7 @@ final class MyViewModel: ObservableObject, SingleEntryPoint {
 }
 ```
 
-**Step 3.2.3**: Use the providede framework baseline in your tests.
+**Step 3.2.3**: Use the provided framework in your tests.
 
 ```swift
 class SingleEntryPointTests: XCTestCase {
@@ -267,34 +237,27 @@ class SingleEntryPointTests: XCTestCase {
 }
 ```
 
-In case you've never needed XCTest loggin integration for xcode or jenkins, please see the result:
+---
 
-![Image]({{ site.baseurl }}/assets/images/swift-ios-apps-single-entry-poing-xctest-integration.png)
+Ouch... this article is packed with valuable insights, but to ensure a clear and focused discussion, we’ve decided to split it into two parts, Effects will be added to the second part [Swift iOS App Single Entry Point for Action/When Events - Effects]({{ site.baseurl }}/swift/action/functional/2024/09/06/swift-ios-apps-single-entry-point-for-action-when-events-effects.html)
 
-### **Handling Effects Separately**
-
-Ouch... this article is packed with valuable insights, but to ensure a clear and focused discussion,
-we’ve decided to split it into two parts, Effects will be added to the second part. Stay tuned for it,
-where we’ll dive even deeper into the topic!
-
+---
 
 ### **Benefits of This Approach**
 
-1. **Structured Flow of `When`s**: The single entry point structure ensures a well-defined flow of `when`s,
- making the code easier to follow, log, test and maintain.
+1. **Structured Flow of `When`s**: The single entry point structure ensures a well-defined flow of `when`s, making the code easier to follow, log, test, and maintain.
+2. **Powerful Testing Capabilities**: Test your business logic in isolation by injecting mock `when`s and asserting the expected outcomes.
+3. **Clean Declaration of Acceptance Criteria**: By modeling `state` and `when` separately, the expectations from the code are clear for everyone involved.
 
-2. **Powerful Testing Capabilities**: Test your business logic in isolation by injecting mock `when`s and 
-asserting the expected outcomes.
+### **Cons of Using a Single Entry Point for Actions**
 
-3. **Clean Declaration of Acceptance Criterai and scelarios**: By modeling `state` and `when` separatedly,
-expectation of the source code is clear to everyone involved.
-   
-### **Conclusion**
+1. **Scaling complexity**: While a single entry point can leverage many features, it needs an important review when the app grows. Though scaling this approach can be done, the scaling architecture needs to be well designed and planned.
+2. **Risk of Over-centralization**: If too much logic is placed in the single entry point, it can turn into a "God object," complicating maintenance.
 
-Implementing a single entry point for `when` handling in Swift iOS applications provides a powerful way to 
-manage business logic. It centralizes control, enhances testability, making your code cleaner, more maintainable,
-and easier to debug. 
+---
 
-This approach not only simplifies how inputs and outputs are handled but also lays the groundwork for advanced 
-features  like automated testing, comprehensive logging, and structured error reporting. By embracing this 
-architecture, you set strong foundation for building robust, scalable, and reliable iOS applications.
+## **Conclusion**
+
+Implementing a single entry point for `when` handling in Swift iOS applications provides a powerful way to manage business logic. It centralizes control, enhances testability, and makes your code cleaner, more maintainable, and easier to debug.
+
+This approach simplifies how inputs and outputs are handled while laying the groundwork for advanced features like automated testing, comprehensive logging, and structured error reporting. Embracing this architecture builds a strong foundation for scalable, reliable iOS applications.
