@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Swift iOS App Single Entry Point for Action/When Events"
+title:  "Swift iOS App Single Entry Point for Action/When Events (Part 1)"
 date:   2024-09-05 21:31:41 +0200
 categories: swift action functional
 ---

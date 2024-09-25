@@ -18,6 +18,8 @@ While simple print statements (`print()`) are helpful during early stages of dev
 - **Reporting**: Logs can track key metrics such as user activity, performance bottlenecks, and errors.
 - **Analytics**: A well-designed logging system can generate insights that improve user experience and performance.
 
+---
+
 ## **Building a Modular Logging System in Swift**
 
 A modular logging system provides flexibility, allowing different modules to plug into the core logger for functionalities like network reporting, analytics, or error handling. Let’s start by building a basic logger and then expand it into a modular system.
@@ -183,6 +185,8 @@ See the result in the debugger:
 
 ![Image]({{ site.baseurl }}/assets/images/ios-mobile-apps-comprehensive-traceable-logging-system-structured.png)
 
+---
+
 ### **Other Log Handlers**
 
 You can also log events for analytics, or send errors to a remote logging system for real-time error tracking. The modular system is flexible enough to support various use cases.
@@ -202,6 +206,8 @@ log_method:
   message: "Please use Logger.shared.log()"
   severity: warning
 ```
+
+---
 
 ## **Conclusion**
 

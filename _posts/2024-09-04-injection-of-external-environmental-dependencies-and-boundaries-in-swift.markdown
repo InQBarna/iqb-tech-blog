@@ -25,6 +25,8 @@ These dependencies are essential but can be unpredictable, especially during tes
 3. **Increased Testability**: Dependencies can be swapped out for mock implementations in unit tests, ensuring tests are isolated and reliable.
 4. **Improved Flexibility and Scalability**: Your code becomes more adaptable to changes, such as switching to a different library or adjusting behavior for testing.
 
+---
+
 ### **Identifying Boundaries: Business Logic vs. External Dependencies**
 
 A critical aspect of managing dependencies is identifying the boundaries between your business logic and external dependencies.
@@ -33,6 +35,8 @@ A critical aspect of managing dependencies is identifying the boundaries between
 - **External Dependencies**: Code and libraries that interact with the outside world, such as date formatting, networking, or accessing hardware features. These are often pre-tested and maintained by their providers.
 
 **Boundary Principle**: Set up boundaries at the interface where your business logic meets external dependencies. The goal is to inject dependencies rather than letting them bleed into your business logic.
+
+---
 
 ### **Examples of Dependency Injection and Decoupling**
 
@@ -173,6 +177,8 @@ extension DependenciesAndBoundariesTests {
 }
 ```
 
+---
+
 ### **Best Practices for Setting Up Dependency Injection Boundaries**
 
 1. **Use Providers to Define Boundaries**: Providers serve as boundaries that separate your business logic from external dependencies, allowing you to inject different implementations based on the context.
@@ -184,6 +190,8 @@ extension DependenciesAndBoundariesTests {
 4. **Design for Testability**: Always design your classes and services with testing in mind. Ask yourself: Can this code be tested in isolation without relying on actual system behavior?
 
 5. **Leverage Dependency Injection Frameworks**: Consider using dependency injection frameworks like Resolver or Swinject to manage the injection and lifecycle of dependencies in your app.
+
+---
 
 ## **Conclusion**
 

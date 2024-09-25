@@ -17,6 +17,8 @@ Decoupling views from view models is essential for several reasons:
 3. **Reusability:** Views can be reused in different contexts without being tightly coupled to specific data sources or logic.
 4. **Scalability:** A clean separation between views and view models helps the app scale more easily as features and complexity grow.
 
+---
+
 ### **Principles of Decoupling in SwiftUI**
 
 1. **Views are Stateless:** SwiftUI views should be as stateless as possible. They should rely on view models to provide the data and handle the logic.
@@ -73,6 +75,8 @@ struct CoupledCounterView: View {
 3. **Difficult to Extend or Change**: Changing the view model or view logic will likely require changes in both components, leading to a fragile codebase that breaks easily with modifications.
 
 4. **Reduced Reusability**: The view is stuck with a specific implementation of the view model, making it hard to reuse the view with different data sources or logic without substantial code changes.
+
+---
 
 ## **Step-by-Step Guide to Building Decoupled Views**
 
@@ -134,6 +138,8 @@ struct CounterView: View {
 }
 ```
 
+---
+
 ### **Key Benefits of this Approach**
 
 - **Loose Coupling:** The view only knows about the input and output value types, not the concrete implementation, which makes it easy to swap out the view model if needed.
@@ -146,6 +152,8 @@ struct CounterView: View {
 - **Initial Complexity**: Decoupling can add an unnecessary layer of abstraction, which can make the learning curve steeper. 
 
 The balance between simplicity and structure must be carefully considered and adapted to your project's size and expected scalability.
+
+---
 
 ## **Conclusion**
 
