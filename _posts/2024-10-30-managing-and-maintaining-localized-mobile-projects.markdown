@@ -61,7 +61,7 @@ struct ContentView: View {
 **Advantages of String Catalogs:**
 - **Organized Structure**: Groups strings with associated metadata (e.g., comments for translators).
 - **Built-in Pluralization**: Handles language-specific plural rules seamlessly.
-- **Adaptability**: Enables dynamic updates through localization platforms.
+- **All in one place**: Available languages, translations and plurals are stored in a single file.
 
 ---
 
@@ -69,7 +69,7 @@ struct ContentView: View {
 
 Using a dedicated platform like **Lokalise**, **Phrase**, or **Crowdin** ensures that your translations are consistent, accessible, and easy to manage. These platforms provide features like:
 - **Centralized Storage**: One source of truth for all translations for all platforms involved in the product.
-- **Collaboration Tools**: Simplifies communication between developers and translators.
+- **Synchronization** between source code and localizations. Adding new localized content to the source code automatically adds them to the string catalog.
 - **Automation**: Direct integration with your project for pulling, pushing, and linting translations.
 
 For developers, it's strongly recommended to choose a platform with an api. So pulling and pushing new transalations can be automated.
@@ -85,8 +85,8 @@ Localization workflows often involve multiple stakeholders, including product te
 ### 2.1 Project Specification: Defining Translations and Keys
 
 During the project specification phase:
-- **Define all translatable strings** and their associated keys in the string catalog.
-- **Define keys/ids for every translation**, although Apple's examples work with the base localization as the id/key of the localied content, most of the platforms work better with keys/ids.
+- **Define all translatable strings** while designing the user interface and experience.
+- **Define keys/ids for every translation**, although Apple's examples work with the base localization as the id/key of the localied content, most of the platforms work better with keys/ids. Using keys/ids instead of base localization strings works better with multi-platform projects. Try using a consistent key/id naming such as `{screen}_{element}_{action}`.
 - **Centralize translations** in the localization platform to ensure consistency across all stakeholders.
 - Use a **pull script** to keep the local project in sync with the platform.
 
@@ -125,7 +125,8 @@ swift scripts/PullLocalization.swift .
 ### 2.2 New Scenarios from Developers During Development
 
 Developers often encounter edge cases requiring additional localized strings, such as error messages or new UI elements. These keys should be:
-- **Added to the local string catalog**.
+- **Use previous naming convention** to keep keys/ids consistent.
+- **Add to the local string catalog**. This happens automatically when project is compiled.
 - **Pushed to the translation platform** using a **push script** to keep the platform up to date.
 
 #### Example Push Script
@@ -238,9 +239,9 @@ To streamline localization management:
 ### Automating with CI/CD
 
 Integrate these scripts into your CI/CD pipeline to ensure localization remains consistent throughout development. For example:
-- Run the **pull script** during build preparation to fetch the latest translations.
-- Execute the **lint script** as part of pre-merge checks to prevent missing or invalid translations.
-- Use the **push script** post-merge to update the platform with new keys.
+- Execute the **lint script** as part of pull request validation build.
+- Run a localized content update before a release build to fetch the latest translations. For example **pull_localizations**, **lint_localizations** and the commit the changes to the release branch if lint success for an up-to-date localizations releas.
+- ... choose your preferred automated workflow to ensure quality and work agreements in your teams ...
 
 ---
 
